@@ -54,7 +54,7 @@ def plot_latency(lat, run_labels: dict[str, str], path: Path) -> None:
     n_req = lat.groupby("run_id")["stage"].apply(lambda s: (s == "normalize").sum())
     per = lat.groupby(["run_id", "stage"])["latency_ms"].sum().unstack(fill_value=0).div(n_req, axis=0) / 1000
     stages = [s for s in STAGE_ORDER if s in per.columns]
-    fig, ax = plt.subplots(figsize=(7, 3.2))
+    fig, ax = plt.subplots(figsize=(8.5, 3.2))
     left = np.zeros(len(per))
     for s in stages:
         if per[s].sum() == 0:
@@ -62,7 +62,7 @@ def plot_latency(lat, run_labels: dict[str, str], path: Path) -> None:
         ax.barh([run_labels[r] for r in per.index], per[s], left=left, label=s)
         left += per[s].to_numpy()
     ax.set_xlabel("mean seconds per request")
-    ax.legend(fontsize=7, ncol=3, loc="lower right")
+    ax.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     ax.set_title("Where the time goes (mean per request, by stage)", fontsize=10)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
