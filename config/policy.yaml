@@ -1,0 +1,59 @@
+version: 1
+scope:
+  name: StudyBuddy
+  description: "CS/programming study assistant"
+  in_scope: [programming, computer_science, cs_math, study_skills, summarization, technical_writing]
+
+# Highest precedence first. When several categories fire, the first one wins; the rest become secondary flags.
+precedence: [DISALLOWED, PROMPT_INJECTION, UNSAFE, PII, OFF_TOPIC, AMBIGUOUS, SAFE]
+
+thresholds:
+  prompt_guard_malicious: 0.80   # Prompt Guard 2 p(malicious) >= this -> PROMPT_INJECTION
+  llm_classifier_min_conf: 0.60  # low-confidence benign-side labels are treated as AMBIGUOUS
+  cascade_skip_llm_if_rules_conf: 0.90  # rules this confident -> skip the LLM classifier
+
+categories:
+  SAFE:
+    action: ALLOW
+    severity: none
+    reason: "Request is in scope and benign."
+  AMBIGUOUS:
+    action: CLARIFY
+    severity: low
+    reason: "Missing information needed to answer usefully."
+  OFF_TOPIC:
+    action: REDIRECT
+    severity: low
+    reason: "Outside the assistant's scope."
+  PII:
+    action: REDACT_AND_ALLOW
+    severity: medium
+    reason: "Personal data detected; redacted before any model call and before logging."
+  UNSAFE:
+    action: BLOCK_WITH_ALTERNATIVE
+    severity: high
+    reason: "Request seeks to cause harm or violate someone's privacy or security."
+    transform_if: dual_use
+  PROMPT_INJECTION:
+    action: BLOCK
+    severity: high
+    reason: "Attempt to override the assistant's instructions or extract hidden configuration."
+    transform_if: has_legitimate_task
+  DISALLOWED:
+    action: BLOCK
+    severity: critical
+    reason: "This category is never fulfilled, regardless of framing."
+
+templates:
+  REDIRECT: "I'm StudyBuddy, a computer-science study assistant, so that's outside what I can help with. I'm happy to help with programming, CS concepts, maths for CS, study planning, or technical writing."
+  BLOCK: "I can't help with that request."
+  BLOCK_DISALLOWED: "I can't help with that. If you or someone else is in danger, please contact local emergency services."
+  FALLBACK: "Sorry, I couldn't produce a reliable answer to that. Please try rephrasing your question."
+  OUTPUT_BLOCKED: "I can't share that. The generated response was withheld because it contained internal configuration."
+  CLARIFY_DEFAULT: "Could you give me a bit more detail about what you need, for example the code, the topic, or the options you're comparing?"
+
+output_policy:
+  max_answer_chars: 6000
+  on_pii_in_output: REDACT
+  on_canary_leak: BLOCK
+  on_schema_fail_after_repair: FALLBACK

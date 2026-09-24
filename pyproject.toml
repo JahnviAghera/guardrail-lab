@@ -1,0 +1,25 @@
+[project]
+name = "guardrail-lab"
+version = "0.1.0"
+description = "Measurable multi-stage LLM guardrail pipeline: detect -> classify -> transform/block -> generate -> validate -> repair"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi", "uvicorn", "streamlit", "pydantic>=2", "pydantic-settings", "pyyaml",
+  "openai", "httpx", "json-repair", "pandas", "scikit-learn", "scipy", "matplotlib", "requests", "tabulate",
+]
+
+[project.optional-dependencies]
+promptguard = ["transformers", "torch"]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: needs a running Ollama server"]
+addopts = "-m 'not slow'"

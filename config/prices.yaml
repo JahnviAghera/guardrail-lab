@@ -1,0 +1,9 @@
+# USD per 1M tokens. Local Ollama models cost $0 in API fees.
+# Fill `reference_api` with a real API model's current prices (look them up; don't guess)
+# to get a "what would this cost on an API" column in reports.
+models:
+  default: {input_per_mtok: 0.0, output_per_mtok: 0.0}
+reference_api:
+  name: null
+  input_per_mtok: null
+  output_per_mtok: null
