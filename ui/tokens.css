@@ -1,0 +1,67 @@
+/* Hallmark · genre: modern-minimal · theme: Cobalt · shared by ui/app.py and video/promo.html
+ * axes: paper cool-light (L 98.5%, h 250) · display grotesk-sans (Space Grotesk) · accent electric cobalt (h 256)
+ */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  /* paper + ink */
+  --color-paper:        oklch(98.5% 0.004 250);
+  --color-paper-2:      oklch(96.5% 0.006 250);
+  --color-ink:          oklch(24% 0.02 258);
+  --color-ink-2:        oklch(34% 0.018 257);
+  --color-muted:        oklch(52% 0.018 257);
+  --color-rule:         oklch(90% 0.008 255);
+  --color-rule-2:       oklch(84% 0.01 255);
+
+  /* the one signal */
+  --color-accent:       oklch(58% 0.20 256);
+  --color-accent-soft:  oklch(94% 0.035 256);
+  --color-accent-ink:   oklch(98.5% 0.004 250);
+  --color-focus:        oklch(58% 0.20 256);
+
+  /* graphite band (the one dark beat) */
+  --color-graphite:     oklch(22% 0.016 260);
+  --color-graphite-2:   oklch(27% 0.016 260);
+  --color-graphite-rule: oklch(34% 0.016 260);
+  --color-on-graphite:  oklch(93% 0.008 255);
+  --color-on-graphite-muted: oklch(70% 0.015 255);
+
+  /* semantic status (pipeline stages only) */
+  --color-pass:         oklch(60% 0.14 152);
+  --color-pass-soft:    oklch(95% 0.035 152);
+  --color-flag:         oklch(68% 0.14 70);
+  --color-flag-soft:    oklch(96% 0.04 80);
+  --color-block:        oklch(57% 0.19 27);
+  --color-block-soft:   oklch(95.5% 0.03 27);
+  --color-repair:       oklch(55% 0.17 295);
+  --color-repair-soft:  oklch(95.5% 0.03 295);
+  --color-skip:         oklch(72% 0.01 255);
+  --color-flag-ink:     oklch(52% 0.13 65);
+
+  /* syntax on graphite */
+  --color-syntax-key:   oklch(72% 0.14 256);
+  --color-syntax-leak:  oklch(78% 0.12 27);
+  --color-syntax-ok:    oklch(78% 0.13 152);
+
+  /* depth */
+  --shadow-lift:        0 1px 2px oklch(24% 0.02 258 / 0.06);
+  --color-spotlight:    oklch(24% 0.02 258 / 0.14);
+
+  /* type */
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body:    "Inter", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* 4-pt spacing */
+  --space-3xs: 0.25rem; --space-2xs: 0.5rem; --space-xs: 0.75rem; --space-sm: 1rem;
+  --space-md: 1.5rem;   --space-lg: 2rem;    --space-xl: 3rem;    --space-2xl: 4.5rem;
+
+  /* radii — drawn with a ruler */
+  --radius-control: 6px;
+  --radius-card: 10px;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 220ms;
+}

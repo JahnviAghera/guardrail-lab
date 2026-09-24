@@ -1,0 +1,5 @@
+[
+  { "date": "2026-09-25", "macrostructure": "Workbench", "theme": "Cobalt", "enrichment": "real screenshots + code cards",
+    "nav": "none (Streamlit tabs)", "footer": "none", "scope": "app",
+    "brief": "Guardrail Lab: Streamlit dashboard + 1080p promo video for an LLM guardrail pipeline" }
+]

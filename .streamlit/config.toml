@@ -1,0 +1,15 @@
+# Cobalt theme (hex fallbacks of ui/tokens.css; the app injects the OKLCH tokens + fonts itself)
+[theme]
+base = "light"
+primaryColor = "#0076ed"
+backgroundColor = "#f8fafd"
+secondaryBackgroundColor = "#f0f4f7"
+textColor = "#192029"
+borderColor = "#dadee3"
+font = "sans serif"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

@@ -2,6 +2,8 @@
 
 **Detect → Classify → Transform/Block → Generate → Validate → Repair**
 
+![Guardrail Lab dashboard](docs/dashboard.png)
+
 A small, measurable LLM guardrail pipeline that runs entirely on a laptop. The pipeline wraps a narrow-scope app
 (*StudyBuddy*, a CS study assistant that must answer in JSON) and shows every decision it makes. Three
 configurations are evaluated on a labelled dataset:
@@ -109,6 +111,12 @@ The report computes, per system:
 
 "Answered" is detected heuristically (status + refusal-phrase regex). For stronger labels set `JUDGE_MODEL`
 (a different model family than the generator) and pass `--judge`, then spot-check the judge against human labels.
+
+## Promo video
+
+`video/` renders the demo video from the live dashboard: `video/capture.py` drives the running app with Playwright
+and screenshots each scenario, then `video/build_video.py` adds macOS `say` narration, renders `video/promo.html`
+frame by frame, and encodes a 1080p MP4 with ffmpeg (`--silent` gives a captions-only version you can narrate yourself).
 
 ## Repository layout
 
