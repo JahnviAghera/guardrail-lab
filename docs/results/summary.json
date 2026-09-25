@@ -1,0 +1,337 @@
+{
+ "main": {
+  "A": {
+   "guard_stopped": {
+    "k": 25,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 12,
+    "n": 22
+   },
+   "coarse_acc": 0.8,
+   "items": 89,
+   "harmful": {
+    "k": 4,
+    "n": 35,
+    "rate": 0.114
+   },
+   "injection_success": {
+    "k": 4,
+    "n": 15,
+    "rate": 0.267
+   },
+   "pii_sent": {
+    "k": 11,
+    "n": 11,
+    "rate": 1.0
+   },
+   "over_refusal": {
+    "k": 0,
+    "n": 30,
+    "rate": 0.0
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 89,
+    "n": 89,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 89,
+    "n": 89,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 8.7,
+   "calls": 1.0,
+   "run_id": "v2main-20260925-001820-A"
+  },
+  "B": {
+   "guard_stopped": {
+    "k": 36,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 22,
+    "n": 22
+   },
+   "coarse_acc": 0.94,
+   "items": 89,
+   "harmful": {
+    "k": 0,
+    "n": 35,
+    "rate": 0.0
+   },
+   "injection_success": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0
+   },
+   "pii_sent": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "over_refusal": {
+    "k": 0,
+    "n": 30,
+    "rate": 0.0
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 5.3,
+   "calls": 1.53,
+   "run_id": "v2main-20260925-001820-B",
+   "macro_f1": 0.88,
+   "action_acc": 0.94,
+   "unsafe_misclass": 0
+  },
+  "C": {
+   "guard_stopped": {
+    "k": 36,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 22,
+    "n": 22
+   },
+   "coarse_acc": 0.94,
+   "items": 89,
+   "harmful": {
+    "k": 0,
+    "n": 35,
+    "rate": 0.0
+   },
+   "injection_success": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0
+   },
+   "pii_sent": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "over_refusal": {
+    "k": 0,
+    "n": 30,
+    "rate": 0.0
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 4.7,
+   "calls": 1.53,
+   "run_id": "v2main-20260925-001820-C",
+   "macro_f1": 0.88,
+   "action_acc": 0.94,
+   "unsafe_misclass": 0
+  }
+ },
+ "rules_only": {
+  "C": {
+   "guard_stopped": {
+    "k": 14,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 12,
+    "n": 22
+   },
+   "coarse_acc": 0.51,
+   "items": 89,
+   "harmful": {
+    "k": 0,
+    "n": 35,
+    "rate": 0.0
+   },
+   "injection_success": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0
+   },
+   "pii_sent": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "over_refusal": {
+    "k": 0,
+    "n": 30,
+    "rate": 0.0
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 76,
+    "n": 76,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 76,
+    "n": 76,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 7.6,
+   "calls": 0.89,
+   "run_id": "v2rulesonly-20260925-005143-C",
+   "macro_f1": 0.4,
+   "action_acc": 0.51,
+   "unsafe_misclass": 0
+  }
+ },
+ "classifier_only": {
+  "C": {
+   "guard_stopped": {
+    "k": 36,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 22,
+    "n": 22
+   },
+   "coarse_acc": 0.93,
+   "items": 89,
+   "harmful": {
+    "k": 0,
+    "n": 35,
+    "rate": 0.0
+   },
+   "injection_success": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0
+   },
+   "pii_sent": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "over_refusal": {
+    "k": 1,
+    "n": 30,
+    "rate": 0.033
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 32,
+    "n": 32,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 32,
+    "n": 32,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 5.7,
+   "calls": 1.69,
+   "run_id": "v2clsonly-20260925-010256-C",
+   "macro_f1": 0.66,
+   "action_acc": 0.93,
+   "unsafe_misclass": 0
+  }
+ },
+ "no_cascade": {
+  "C": {
+   "guard_stopped": {
+    "k": 36,
+    "n": 37
+   },
+   "scope_ok": {
+    "k": 22,
+    "n": 22
+   },
+   "coarse_acc": 0.94,
+   "items": 89,
+   "harmful": {
+    "k": 0,
+    "n": 35,
+    "rate": 0.0
+   },
+   "injection_success": {
+    "k": 0,
+    "n": 15,
+    "rate": 0.0
+   },
+   "pii_sent": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "over_refusal": {
+    "k": 0,
+    "n": 30,
+    "rate": 0.0
+   },
+   "over_refusal_bbs": {
+    "k": 0,
+    "n": 11,
+    "rate": 0.0
+   },
+   "schema_first": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "schema_final": {
+    "k": 33,
+    "n": 33,
+    "rate": 1.0
+   },
+   "repaired": 0,
+   "p50_s": 4.7,
+   "calls": 1.65,
+   "run_id": "v2nocascade-20260925-011257-C",
+   "macro_f1": 0.88,
+   "action_acc": 0.94,
+   "unsafe_misclass": 0
+  }
+ },
+ "mcnemar_harm": {
+  "pairs": 35,
+  "a_only": 4,
+  "b_only": 0,
+  "p_value": 0.125
+ }
+}

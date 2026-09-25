@@ -182,33 +182,47 @@ figcaption { position: absolute; font: 500 16px var(--font-mono); letter-spacing
 
   <div id="demos"></div>
 
-  <!-- RESULTS — honest comparison table -->
+  <!-- RESULTS — honest comparison table, filled from results.json -->
   <section class="scene" data-id="results">
     <div style="position:absolute;left:96px;top:170px">
-      <div class="a label" data-in="0.1" data-fx="up">49 held-out test prompts · qwen3:4b · temperature 0</div>
+      <div class="a label" data-in="0.1" data-fx="up" id="res-label">held-out test prompts</div>
       <div class="a h2" data-in="0.3" data-fx="up" style="margin-top:22px">Measured, not just demoed.</div>
     </div>
-    <div class="tbl">
-      <div class="tr head a" data-in="0.5" data-fx="fade"><span class="label">Metric</span><span class="label">A · baseline</span><span class="label">C · full pipeline</span><span class="label">Why</span></div>
-      <div class="tr a" data-in="p0.12" data-fx="left"><span class="m">Prompt-injection leaks</span><span class="va">2 of 7</span><span class="c win"><span class="count" data-in="p0.16" data-from="2" data-to="0" data-dur="1.2">0</span> of 7</span><span class="note">rules + classifier + canary</span></div>
-      <div class="tr a" data-in="p0.34" data-fx="left"><span class="m">PII sent to the model</span><span class="va">7 of 7</span><span class="c win"><span class="count" data-in="p0.38" data-from="7" data-to="0" data-dur="1.2">0</span> of 7</span><span class="note">redacted before any LLM call</span></div>
-      <div class="tr a" data-in="p0.56" data-fx="left"><span class="m">Legitimate requests refused</span><span class="va">0</span><span class="c">0</span><span class="note">incl. "kill a zombie process"</span></div>
-      <div class="tr a" data-in="p0.72" data-fx="left"><span class="m">Median latency</span><span class="va">9.9 s</span><span class="c win"><span class="count" data-in="p0.76" data-from="9.9" data-to="4.3" data-dur="1.2" data-dec="1">4.3</span> s</span><span class="note">blocked requests skip generation</span></div>
-      <div class="tr a" data-in="p0.86" data-fx="left"><span class="m">LLM calls per request</span><span class="va">1.00</span><span class="c">1.45</span><span class="note">the cost: one classifier call</span></div>
+    <div class="tbl" id="res-table" style="top:330px"></div>
+  </section>
+
+  <!-- ABLATION — which layer matters -->
+  <section class="scene" data-id="ablation">
+    <div style="position:absolute;left:96px;top:170px">
+      <div class="a label" data-in="0.1" data-fx="up">Ablation · layers removed, same 89 prompts</div>
+      <div class="a h2" data-in="0.3" data-fx="up" style="margin-top:22px">Which layer matters?</div>
+    </div>
+    <div class="tbl" id="abl-table" style="top:360px"></div>
+  </section>
+
+  <!-- REPAIR — unconstrained generation -->
+  <section class="scene" data-id="repair">
+    <div class="col-left" style="width:760px;gap:34px">
+      <div class="a label" data-in="0.1" data-fx="up">Schema constraint switched off</div>
+      <div class="a h2" data-in="0.3" data-fx="up">Self-repair,<br><span style="color:var(--color-repair)">measured.</span></div>
+      <div class="a lede" data-in="p0.7" data-fx="up" id="rep-note" style="font-size:26px"></div>
+    </div>
+    <div style="position:absolute;left:980px;top:250px;width:844px">
+      <div class="rows" id="rep-rows"></div>
     </div>
   </section>
 
   <!-- CLASSIFIER -->
   <section class="scene" data-id="classifier">
     <figure class="a shot" data-in="0.2" data-fx="rise" style="left:96px;top:150px;width:900px;height:760px;padding:24px">
-      <img src="../docs/results/confusion_main-20260924-231651-C.png" style="width:100%;height:100%;object-fit:contain">
+      <img id="cls-img" src="../docs/results/confusion_main-20260924-231651-C.png" style="width:100%;height:100%;object-fit:contain">
     </figure>
     <div style="position:absolute;left:1080px;top:190px;width:744px">
       <div class="a label" data-in="0.3" data-fx="up">Input classifier · 7 categories</div>
       <div class="rows" style="margin-top:34px">
-        <div class="a row" data-in="p0.08" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n sig" style="font-size:84px"><span class="count" data-in="p0.1" data-from="0" data-to="0.92" data-dur="1.4" data-dec="2">0.92</span></span><span class="t">macro F1 on the test split</span></div>
-        <div class="a row" data-in="p0.35" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n" style="font-size:84px"><span class="count" data-in="p0.37" data-from="0" data-to="98" data-dur="1.2">98</span>%</span><span class="t">correct action: proceed, clarify or stop</span></div>
-        <div class="a row" data-in="p0.62" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n" style="font-size:84px">0</span><span class="t">misclassifications with an unsafe outcome</span></div>
+        <div class="a row" data-in="p0.08" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n sig" style="font-size:84px"><span class="count" id="cls-f1" data-in="p0.1" data-from="0" data-to="0.92" data-dur="1.4" data-dec="2">0.92</span></span><span class="t" id="cls-f1-note">macro F1 on the test split</span></div>
+        <div class="a row" data-in="p0.35" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n" style="font-size:84px"><span class="count" id="cls-acc" data-in="p0.37" data-from="0" data-to="98" data-dur="1.2">98</span>%</span><span class="t">correct action: proceed, clarify or stop</span></div>
+        <div class="a row" data-in="p0.62" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n" style="font-size:84px" id="cls-unsafe">0</span><span class="t">harmful outcomes in system C</span></div>
       </div>
     </div>
   </section>
@@ -395,8 +409,64 @@ function renderRail(sc, local) {
   RAIL.forEach((r, i) => document.querySelector(`[data-st="${i}"]`).classList.toggle("on", local >= at(r[3], sc)));
 }
 
+function frac(f) { return f && f.n ? `${f.k} of ${f.n}` : "n/a"; }
+function fillResults() {
+  const R = window.RESULTS;
+  if (!R || window.FILLED) return;
+  window.FILLED = true;
+  const A = R.main.A, C = R.main.C;
+  document.getElementById("res-label").textContent = `${C.items} held-out test prompts · qwen3:4b · temperature 0`;
+  const rows = [
+    ["Prompt-injection attacks that succeeded", frac(A.injection_success), C.injection_success, "rules + classifier + canary"],
+    ["Harmful outcomes (attacks + unsafe)", frac(A.harmful), C.harmful, "blocked before generation"],
+    ["PII prompts sent to the model", frac(A.pii_sent), C.pii_sent, "redacted before any LLM call"],
+    ["Legitimate requests refused", frac(A.over_refusal), C.over_refusal, `incl. ${C.over_refusal_bbs.n} benign-but-scary`],
+    ["Median latency", `${A.p50_s} s`, {s: `${C.p50_s} s`}, "blocked requests skip generation"],
+    ["LLM calls per request", A.calls.toFixed(2), {s: C.calls.toFixed(2)}, "the cost: one classifier call"],
+  ];
+  let html = `<div class="tr head a" data-in="0.5" data-fx="fade"><span class="label">Metric</span><span class="label">A · baseline</span><span class="label">C · full pipeline</span><span class="label">Why</span></div>`;
+  rows.forEach((r, i) => {
+    const c = r[2].s ? r[2].s : frac(r[2]);
+    const win = !r[2].s && r[2].k === 0 ? " win" : "";
+    html += `<div class="tr a" data-in="p${(0.08 + i * 0.14).toFixed(2)}" data-fx="left" style="padding:15px 0"><span class="m">${r[0]}</span><span class="va">${r[1]}</span><span class="c${win}">${c}</span><span class="note">${r[3]}</span></div>`;
+  });
+  document.getElementById("res-table").innerHTML = html;
+
+  const ab = [["Model alone (A)", R.main.A], ["Rules only", R.rules_only?.C], ["Classifier only", R.classifier_only?.C],
+              ["Rules + classifier (C)", C], ["C without cascade", R.no_cascade?.C]];
+  const cols = "grid-template-columns:minmax(0,1.3fr) repeat(4,minmax(0,1fr))";
+  let h2 = `<div class="tr head a" data-in="0.5" data-fx="fade" style="${cols}"><span class="label">Configuration</span><span class="label">Risky stopped</span><span class="label">Scope handled</span><span class="label">Legit refused</span><span class="label">LLM calls / req</span></div>`;
+  ab.forEach(([name, e], i) => {
+    if (!e) return;
+    const best = name.startsWith("Rules + classifier") ? " win" : "";
+    const bad = (f) => f.k > 0 ? ' style="font-size:40px;color:var(--color-block)"' : ' style="font-size:40px"';
+    h2 += `<div class="tr a" data-in="p${(0.06 + i * 0.16).toFixed(2)}" data-fx="left" style="${cols};padding:16px 0"><span class="m">${name}</span><span class="c${best}" style="font-size:40px">${frac(e.guard_stopped)}</span><span class="c${best}" style="font-size:40px">${frac(e.scope_ok)}</span><span class="c"${bad(e.over_refusal)}>${frac(e.over_refusal)}</span><span class="va">${e.calls.toFixed(2)}</span></div>`;
+  });
+  document.getElementById("abl-table").innerHTML = h2;
+
+  const U = R.unconstrained?.C;
+  if (U) {
+    const invalid = U.schema_first.n - U.schema_first.k;
+    document.getElementById("rep-rows").innerHTML = [
+      [frac(U.schema_first), "valid JSON on the first try, without schema-constrained decoding"],
+      [String(U.repaired), "broken outputs repaired automatically"],
+      [frac(U.schema_final), "valid after the repair loop"],
+      [frac(C.schema_first), "valid first try with constrained decoding (default)"],
+    ].map((r, i) => `<div class="a row" data-in="p${(0.08 + i * 0.2).toFixed(2)}" data-fx="left" style="grid-template-columns:230px minmax(0,1fr)"><span class="n"${i === 2 ? ' style="color:var(--color-repair)"' : ""}>${r[0]}</span><span class="t">${r[1]}</span></div>`).join("");
+    document.getElementById("rep-note").textContent = invalid
+      ? `Of ${invalid} invalid outputs, ${U.repaired} were fixed without a human.`
+      : "The model never broke the schema, even without constraints; the repair loop stayed idle.";
+  }
+  document.getElementById("cls-f1").dataset.to = C.macro_f1;
+  document.getElementById("cls-acc").dataset.to = Math.round(C.action_acc * 100);
+  document.getElementById("cls-unsafe").textContent = C.unsafe_misclass;
+  document.getElementById("cls-f1-note").textContent = `macro F1 on ${C.items} test prompts`;
+  if (window.CONFUSION) document.getElementById("cls-img").src = window.CONFUSION;
+}
+
 window.render = function (t) {
   const TL = window.TIMELINE;
+  fillResults();
   document.getElementById("progress").style.width = `${100 * t / TL.total}%`;
   let caption = "", dark = false;
   document.querySelectorAll(".scene").forEach(el => {

@@ -4,7 +4,7 @@
     python video/build_video.py        # 2. narration → timeline → frames → MP4
 
 Output: video/build/guardrail_lab_promo.mp4 (1920×1080, 30 fps, H.264 + AAC)
-Narration uses the macOS `say` voice (VOICE env var); pass --silent for a captions-only version to narrate yourself.
+Narration uses Kokoro neural TTS (VOICE=af_heart; TTS=say for the macOS voice); pass --silent for a captions-only version to narrate yourself.
 """
 import argparse
 import json
@@ -19,9 +19,12 @@ from playwright.sync_api import sync_playwright
 HERE = Path(__file__).parent
 BUILD = HERE / "build"
 AUDIO = BUILD / "audio"
+RESULTS = BUILD / "results.json"
 FPS = 30
-VOICE = os.environ.get("VOICE", "Samantha")
-RATE = os.environ.get("RATE", "178")
+TTS = os.environ.get("TTS", "kokoro")            # kokoro (neural, natural) | say (macOS built-in)
+VOICE = os.environ.get("VOICE", "af_heart" if TTS == "kokoro" else "Samantha")
+RATE = os.environ.get("RATE", "1.0" if TTS == "kokoro" else "178")
+TTS_DIR = HERE / "tts"   # kokoro-v1.0.onnx + voices-v1.0.bin from github.com/thewh1teagle/kokoro-onnx releases
 LEAD, TAIL = 0.45, 0.85  # seconds of silence before/after each scene's narration
 
 # (scene id, narration). Spelling tweaks are for the TTS voice only; captions show the clean text.
@@ -50,17 +53,84 @@ SCENES = [
     ("d_canary", "And if the model ever leaks its hidden prompt, a secret canary token gives it away, and the answer is withheld."),
     ("d_compare", "Side by side, the difference is clear. The unguarded baseline leaks its secret instructions. "
                   "With guardrails, the same attack is blocked."),
-    ("results", "And it's measured, not just demoed. On a held-out test set, prompt injection leaks dropped from two in seven to zero. "
-                "Personal data sent to the model dropped from one hundred percent to zero. With zero wrongly refused requests, "
-                "and a faster median response, because blocked requests never reach the model."),
-    ("classifier", "The input classifier scores a macro F1 of zero point nine two, picks the right action ninety eight percent "
-                   "of the time, and every mistake it made still ended safely."),
     ("stack", "And it all runs on a laptop. Python, FastAPI, Streamlit, Pydantic, SQLite, and a local Qwen 3 model through Ollama."),
     ("outro", "Guardrail Lab. Detect, classify, transform, generate, validate, and repair. The code is open source on GitHub."),
 ]
-TTS_FIXES = {"LLM": "L L M", "Qwen 3": "Kwen 3", "FastAPI": "Fast A P I", "SQLite": "S Q Lite", "F1": "F 1",
-             "Pydantic": "Pie-dantic", "normalized": "normalized"}
+TTS_FIXES = {"LLM": "L.L.M.", "Qwen 3": "Kwen 3", "FastAPI": "Fast A.P.I.", "SQLite": "S.Q. Lite", "F1": "F one"}
+if TTS == "say":
+    TTS_FIXES |= {"L.L.M.": "L L M", "Pydantic": "Pie-dantic"}
+_kokoro = None
+
+
+def synthesize(text: str, out: Path) -> None:
+    global _kokoro
+    if TTS == "say":
+        subprocess.run(["say", "-v", VOICE, "-r", RATE, "-o", str(out.with_suffix(".aiff")), text], check=True)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(out.with_suffix(".aiff")), str(out)], check=True)
+        return
+    import soundfile as sf
+    from kokoro_onnx import Kokoro
+    if _kokoro is None:
+        _kokoro = Kokoro(str(TTS_DIR / "kokoro-v1.0.onnx"), str(TTS_DIR / "voices-v1.0.bin"))
+    samples, sr = _kokoro.create(text, voice=VOICE, speed=float(RATE), lang="en-us")
+    sf.write(str(out), samples, sr)
 CAPTION_FIXES = {"Qwen 3": "Qwen3"}
+
+
+def frac(f: dict) -> str:
+    return f"{f['k']} of {f['n']}"
+
+
+def results_scenes(R: dict) -> list[tuple[str, str]]:
+    """Narration for the data scenes, written from the measured numbers (never hard-coded claims)."""
+    A, C = R["main"]["A"], R["main"]["C"]
+    lines = [f"And it's measured, not just demoed. On {C['items']} held-out test prompts, successful prompt injections "
+             f"went from {frac(A['injection_success'])} to {frac(C['injection_success'])}. Personal data sent to the model "
+             f"went from {frac(A['pii_sent'])} to {frac(C['pii_sent'])}."]
+    k = C["over_refusal"]["k"]
+    lines.append("And not a single legitimate request was refused." if k == 0 else
+                 f"The cost: {frac(C['over_refusal'])} legitimate requests {'was' if k == 1 else 'were'} refused.")
+    if C["p50_s"] < A["p50_s"]:
+        lines.append("The median response is faster too, because blocked requests never reach the model.")
+    scenes = [("results", " ".join(lines))]
+
+    ro, co, nc = (R.get(k, {}).get("C") for k in ("rules_only", "classifier_only", "no_cascade"))
+    if ro and co:
+        abl = (f"So which layer matters? Rules alone stop {frac(ro['guard_stopped'])} risky requests. "
+               f"The classifier alone stops {frac(co['guard_stopped'])}, and handles every off-topic and ambiguous request")
+        abl += (f", but refused {co['over_refusal']['k']} legitimate one. " if co["over_refusal"]["k"] == 1 else
+                f", but refused {co['over_refusal']['k']} legitimate ones. " if co["over_refusal"]["k"] > 1 else ". ")
+        abl += f"Together, {frac(C['guard_stopped'])}"
+        abl += ", with zero legitimate requests refused." if C["over_refusal"]["k"] == 0 else "."
+        if nc and nc["calls"] > C["calls"]:
+            abl += f" And the cascade saves {round((nc['calls'] - C['calls']) * 100)} model calls per hundred requests."
+        scenes.append(("ablation", abl))
+
+    U = R.get("unconstrained", {}).get("C")
+    if U:
+        invalid = U["schema_first"]["n"] - U["schema_first"]["k"]
+        if invalid:
+            rep = (f"Switch off constrained decoding, and only {frac(U['schema_first'])} outputs are valid on the first try. "
+                   f"The repair loop fixed {U['repaired']} of them automatically, for {frac(U['schema_final'])} valid in the end.")
+        else:
+            rep = ("Even with constrained decoding switched off, every output was valid on the first try, "
+                   "so the repair loop never had to step in.")
+        scenes.append(("repair", rep))
+
+    cls = (f"The input classifier scores a macro F1 of {C['macro_f1']:.2f} across seven categories, and picks the right "
+           f"action {round(C['action_acc'] * 100)} percent of the time.")
+    cls += (" And no harmful outcome got through the full pipeline." if C["unsafe_misclass"] == 0 else
+            f" {C['unsafe_misclass']} harmful {'outcome' if C['unsafe_misclass'] == 1 else 'outcomes'} still got through, "
+            "and that's the next thing to fix.")
+    scenes.append(("classifier", cls))
+    return scenes
+
+
+def speakify(text: str) -> str:
+    """Spell decimals for the voice: 0.94 → zero point nine four, 4.3 → 4 point 3."""
+    words = "zero one two three four five six seven eight nine".split()
+    return re.sub(r"(\d+)\.(\d+)", lambda m: f"{words[int(m.group(1))] if m.group(1) == '0' else m.group(1)} point "
+                  + " ".join(words[int(d)] for d in m.group(2)), text)
 
 
 def sentences(text: str) -> list[str]:
@@ -72,17 +142,29 @@ def duration(path: Path) -> float:
     return float(out)
 
 
+def all_scenes() -> list[tuple[str, str]]:
+    R = json.loads(RESULTS.read_text())
+    data = dict(results_scenes(R))
+    out = []
+    for sid, text in SCENES:
+        out.append((sid, text))
+        if sid == "d_compare":
+            out += [(k, data[k]) for k in ("results", "ablation", "repair", "classifier") if k in data]
+    return out
+
+
 def make_audio(silent: bool) -> dict:
     AUDIO.mkdir(parents=True, exist_ok=True)
     timeline, t = {}, 0.0
-    for sid, text in SCENES:
-        spoken = text
+    for sid, text in all_scenes():
+        spoken = speakify(text)
         for k, v in TTS_FIXES.items():
             spoken = spoken.replace(k, v)
-        wav = AUDIO / f"{sid}.aiff"
-        if not wav.exists() or (AUDIO / f"{sid}.txt").read_text() != spoken + VOICE + RATE:
-            subprocess.run(["say", "-v", VOICE, "-r", RATE, "-o", str(wav), spoken], check=True)
-            (AUDIO / f"{sid}.txt").write_text(spoken + VOICE + RATE)
+        wav = AUDIO / f"{sid}.wav"
+        key = f"{spoken}|{TTS}|{VOICE}|{RATE}"
+        if not wav.exists() or not (AUDIO / f"{sid}.txt").exists() or (AUDIO / f"{sid}.txt").read_text() != key:
+            synthesize(spoken, wav)
+            (AUDIO / f"{sid}.txt").write_text(key)
         d = duration(wav)
         caption = text
         for k, v in CAPTION_FIXES.items():
@@ -102,7 +184,7 @@ def mix_audio(tl: dict, out: Path) -> None:
         filters.append(f"[{i}:a]aresample=48000,adelay={ms}|{ms},apad[a{i}]")
     n = len(tl["scenes"])
     graph = ";".join(filters) + ";" + "".join(f"[a{i}]" for i in range(n)) + \
-        f"amix=inputs={n}:normalize=0:duration=longest,atrim=0:{tl['total']},volume=1.6,alimiter=limit=0.95[out]"
+        f"amix=inputs={n}:normalize=0:duration=longest,atrim=0:{tl['total']},loudnorm=I=-16:TP=-1.5:LRA=11[out]"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", graph, "-map", "[out]",
                     "-ac", "2", str(out)], check=True)
 
@@ -127,7 +209,12 @@ def render_frames(tl: dict, boxes: dict, out: Path, preview_at: list[float] | No
         page = browser.new_page(viewport={"width": 1920, "height": 1080}, device_scale_factor=1)
         page.goto((HERE / "promo.html").as_uri())
         page.wait_for_function("window.READY === true")
-        page.evaluate("([tl, bx]) => { window.TIMELINE = tl; window.BOXES = bx; }", [tl, boxes])
+        R = json.loads(RESULTS.read_text())
+        run_c = R["main"]["C"]["run_id"]
+        batch = run_c.rsplit("-", 1)[0]
+        conf = HERE.parent / "results" / batch / f"confusion_{run_c}.png"
+        page.evaluate("([tl, bx, r, cf]) => { window.TIMELINE = tl; window.BOXES = bx; window.RESULTS = r; window.CONFUSION = cf; }",
+                      [tl, boxes, R, conf.as_uri() if conf.exists() else None])
         page.evaluate("document.fonts.ready")
         page.wait_for_timeout(1500)  # images + web fonts
 
